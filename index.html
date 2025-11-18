@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Princess Website</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        background: #ffecf2;
+        overflow-x: hidden;
+    }
+
+    .hidden { display: none; }
+
+    /* Falling Flowers */
+    .flower {
+        position: fixed;
+        top: -10px;
+        font-size: 24px;
+        animation: fall linear infinite;
+        z-index: 9999;
+    }
+
+    @keyframes fall {
+        0% { transform: translateY(-10px) rotate(0deg); }
+        100% { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    /* Center Card */
+    .center-box {
+        margin-top: 100px;
+        text-align: center;
+    }
+
+    .main-btn {
+        padding: 15px 25px;
+        background: #ff7bb5;
+        color: white;
+        font-size: 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        border: none;
+        margin: 10px;
+        transition: 0.3s;
+    }
+    .main-btn:hover {
+        background: #ff4c9d;
+    }
+
+    /* Upload boxes */
+    .upload-box {
+        background: white;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .gallery-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin: 10px;
+    }
+
+    textarea {
+        width: 90%;
+        height: 150px;
+        border-radius: 10px;
+        padding: 10px;
+        border: 2px solid #ff8ccf;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="center-box">
+    <h1>Welcome My Princess ❤️</h1>
+    <p>Enter your secret password baby...</p>
+    <input type="text" id="passwordInput" placeholder="Enter password" style="padding:10px;font-size:18px;border-radius:10px;border:2px solid #ff9dcf;">
+    <br><br>
+    <button class="main-btn" onclick="login()">Login</button>
+    <p id="errorMsg" style="color:red;display:none;">Wrong password princess 😭</p>
+</div>
+
+<!-- HOME PAGE -->
+<div id="homePage" class="hidden center-box">
+    <h1>Happy Princess Day My Princess!!!! 💖</h1>
+    <h3>Select where you want to go ✨</h3>
+
+    <button class="main-btn" onclick="openPage('lettersPage')">📜 Letters</button>
+    <button class="main-btn" onclick="openPage('galleryPage')">🖼️ Gallery</button>
+    <button class="main-btn" onclick="openPage('aiPhotosPage')">✨ AI Photos</button>
+</div>
+
+<!-- LETTERS PAGE -->
+<div id="lettersPage" class="hidden">
+    <div class="center-box">
+        <h1>Your Letters 💌</h1>
+        <textarea id="letterInput" placeholder="Write a new letter here..."></textarea>
+        <br>
+        <button class="main-btn" onclick="saveLetter()">Save</button>
+        <button class="main-btn" onclick="goHome()">Back</button>
+        <div id="lettersList"></div>
+    </div>
+</div>
+
+<!-- GALLERY PAGE -->
+<div id="galleryPage" class="hidden">
+    <div class="center-box">
+        <h1>Your Gallery 📸</h1>
+        <input type="file" accept="image/*" multiple onchange="uploadImages(event)">
+        <br><br>
+        <button class="main-btn" onclick="goHome()">Back</button>
+        <div id="galleryContainer"></div>
+    </div>
+</div>
+
+<!-- AI PHOTOS PAGE -->
+<div id="aiPhotosPage" class="hidden">
+    <div class="center-box">
+        <h1>AI Photos ✨</h1>
+        <input type="file" accept="image/*" multiple onchange="uploadAIImages(event)">
+        <br><br>
+        <button class="main-btn" onclick="goHome()">Back</button>
+        <div id="aiGalleryContainer"></div>
+    </div>
+</div>
+
+<script>
+/* ---------------- FALLING FLOWERS ---------------- */
+function startFlowers() {
+    setInterval(() => {
+        let flower = document.createElement("div");
+        flower.className = "flower";
+        flower.innerHTML = "🌸";
+        flower.style.left = Math.random() * 100 + "vw";
+        flower.style.animationDuration = (4 + Math.random() * 5) + "s";
+        document.body.appendChild(flower);
+        setTimeout(() => flower.remove(), 9000);
+    }, 300);
+}
+
+/* ---------------- LOGIN ---------------- */
+function login() {
+    let pwd = document.getElementById("passwordInput").value.trim();
+    if (pwd === "happy princess day my princess!!!!") {
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("homePage").classList.remove("hidden");
+        startFlowers();
+    } else {
+        document.getElementById("errorMsg").style.display = "block";
+    }
+}
+
+/* ---------------- NAVIGATION ---------------- */
+function openPage(page) {
+    document.getElementById("homePage").classList.add("hidden");
+    document.getElementById(page).classList.remove("hidden");
+}
+
+function goHome() {
+    document.querySelectorAll('#lettersPage, #galleryPage, #aiPhotosPage')
+        .forEach(p => p.classList.add("hidden"));
+    document.getElementById("homePage").classList.remove("hidden");
+}
+
+/* ---------------- LETTERS ---------------- */
+let letters = JSON.parse(localStorage.getItem("letters") || "[]");
+renderLetters();
+
+function saveLetter() {
+    let text = document.getElementById("letterInput").value.trim();
+    if (!text) return;
+    letters.push(text);
+    localStorage.setItem("letters", JSON.stringify(letters));
+    document.getElementById("letterInput").value = "";
+    renderLetters();
+}
+
+function renderLetters() {
+    let list = document.getElementById("lettersList");
+    list.innerHTML = "";
+    letters.forEach((txt, i) => {
+        let box = document.createElement("div");
+        box.className = "upload-box";
+        box.innerHTML = `<p>${txt}</p>`;
+        list.appendChild(box);
+    });
+}
+
+/* ---------------- GALLERY ---------------- */
+let galleryImgs = JSON.parse(localStorage.getItem("gallery") || "[]");
+renderGallery();
+
+function uploadImages(event) {
+    [...event.target.files].forEach(file => {
+        let reader = new FileReader();
+        reader.onload = e => {
+            galleryImgs.push(e.target.result);
+            localStorage.setItem("gallery", JSON.stringify(galleryImgs));
+            renderGallery();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderGallery() {
+    let container = document.getElementById("galleryContainer");
+    container.innerHTML = "";
+    galleryImgs.forEach(src => {
+        let img = document.createElement("img");
+        img.src = src;
+        img.className = "gallery-img";
+        container.appendChild(img);
+    });
+}
+
+/* ---------------- AI GALLERY ---------------- */
+let aiImgs = JSON.parse(localStorage.getItem("ai") || "[]");
+renderAIGallery();
+
+function uploadAIImages(event) {
+    [...event.target.files].forEach(file => {
+        let reader = new FileReader();
+        reader.onload = e => {
+            aiImgs.push(e.target.result);
+            localStorage.setItem("ai", JSON.stringify(aiImgs));
+            renderAIGallery();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderAIGallery() {
+    let container = document.getElementById("aiGalleryContainer");
+    container.innerHTML = "";
+    aiImgs.forEach(src => {
+        let img = document.createElement("img");
+        img.src = src;
+        img.className = "gallery-img";
+        container.appendChild(img);
+    });
+}
+
+// --- AUTO-HIDE SAVE BUTTONS AFTER SAVING ---
+function hideAfterSave(btnId) {
+  const btn = document.getElementById(btnId);
+  if (btn) btn.style.display = 'none';
+}
+</script>
+
+</body>
+</html>
